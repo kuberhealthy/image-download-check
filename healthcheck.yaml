@@ -1,0 +1,34 @@
+---
+apiVersion: kuberhealthy.github.io/v2
+kind: HealthCheck
+metadata:
+  name: image-download-check
+  namespace: kuberhealthy
+spec:
+  runInterval: 10m
+  timeout: 25m
+  podSpec:
+    spec:
+      containers:
+        - name: image-download-check
+          image: kuberhealthy/image-download-check:sha-<short-sha>
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: FULL_IMAGE_URL
+              value: "nginx:1.21"
+            - name: TIMEOUT_LIMIT
+              value: "180s"
+            - name: LOGIN_REQUIRED
+              value: "true"
+            - name: REGISTRY_USERNAME
+              value: "username"
+            - name: REGISTRY_PASSWORD
+              value: "password"
+          resources:
+            requests:
+              cpu: 15m
+              memory: 15Mi
+            limits:
+              cpu: 25m
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 5
