@@ -1,59 +1,23 @@
-# image-download-check
+# Image Download Check
 
-The `image-download-check` pulls a configured container image and verifies the download time stays under a configured threshold. If the pull duration exceeds the limit, the check reports failure to Kuberhealthy.
+Kuberhealthy's image download check
 
-## Configuration
+## What it is
+This repository builds the container image used by Kuberhealthy to run the image-download-check check.
 
-Set these environment variables in the `HealthCheck` spec:
+## Image
+- `docker.io/kuberhealthy/image-download-check`
+- Tags: short git SHA for `main` pushes and `vX.Y.Z` for releases.
 
-- `FULL_IMAGE_URL` (required): image reference to pull (for example, `nginx:1.21`).
-- `TIMEOUT_LIMIT` (required): maximum pull duration as a Go duration (for example, `180s`).
-- `LOGIN_REQUIRED` (optional): set to `true` when the registry requires authentication.
-- `REGISTRY_USERNAME` (optional): registry username when `LOGIN_REQUIRED` is `true`.
-- `REGISTRY_PASSWORD` (optional): registry password when `LOGIN_REQUIRED` is `true`.
+## Quick start
+- Apply the example manifest: `kubectl apply -f healthcheck.yaml`
+- Edit the manifest to set any required inputs for your environment.
 
-## Build
+## Build locally
+- `docker build -f ./Containerfile -t kuberhealthy/image-download-check:dev .`
 
-- `just build` builds the container image locally.
-- `just test` runs unit tests.
-- `just binary` builds the binary in `bin/`.
+## Contributing
+Issues and PRs are welcome. Please keep changes focused and add a short README update when behavior changes.
 
-## Example HealthCheck
-
-Apply the example below or the provided `healthcheck.yaml`:
-
-```yaml
-apiVersion: kuberhealthy.github.io/v2
-kind: HealthCheck
-metadata:
-  name: image-download-check
-  namespace: kuberhealthy
-spec:
-  runInterval: 10m
-  timeout: 25m
-  podSpec:
-    spec:
-      containers:
-        - name: image-download-check
-          image: kuberhealthy/image-download-check:sha-<short-sha>
-          imagePullPolicy: IfNotPresent
-          env:
-            - name: FULL_IMAGE_URL
-              value: "nginx:1.21"
-            - name: TIMEOUT_LIMIT
-              value: "180s"
-            - name: LOGIN_REQUIRED
-              value: "true"
-            - name: REGISTRY_USERNAME
-              value: "username"
-            - name: REGISTRY_PASSWORD
-              value: "password"
-          resources:
-            requests:
-              cpu: 15m
-              memory: 15Mi
-            limits:
-              cpu: 25m
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 5
-```
+## License
+See `LICENSE`.
